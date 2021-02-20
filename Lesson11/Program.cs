@@ -5,96 +5,116 @@ namespace Lesson11
 {
     static class Homework
     {
+
+        public static object locker = new Object();
         public static void Task1()
         {
-            Console.WriteLine("Welcome !!!!");
-            Console.WriteLine("1. Insert ");
-            Console.WriteLine("2. Update ");
-            Console.WriteLine("3. Delate ");
-            Console.WriteLine("4. Select ");
-            Console.Write("Your choice in number ");
-            var x = Convert.ToInt32(Console.ReadLine());
-            if (x == 1)
+            lock (locker)
             {
-                Console.Write("Client Name ");
-                var name = Console.ReadLine();
-                Console.Write("Client Balance ");
-                var balance = Convert.ToDecimal(Console.ReadLine());
+                Console.WriteLine("Welcome !!!!");
+                Console.WriteLine("1 => Insert ");
+                Console.WriteLine("2 => Update ");
+                Console.WriteLine("3 => Delate ");
+                Console.WriteLine("4 => Select ");
+                Console.WriteLine("5 => Checking Ballance system ");
+                Console.WriteLine("6 => Exit ");
+                Console.Write("Your choice in number ");
+                var x = Convert.ToInt32(Console.ReadLine());
+                if (x == 1)
+                {
+                    Console.Write("Client Name ");
+                    var name = Console.ReadLine();
+                    Console.Write("Client Balance ");
+                    var balance = Convert.ToDecimal(Console.ReadLine());
 
-                Thread insert = new Thread(() => Client.Insert(name, balance));
-                insert.Start();
+                    Thread insert = new Thread(() => ClientHelper.Insert(name, balance));
+                    insert.Start();
 
 
-            }
-            else if (x == 2)
-            {
-                Console.Write("enter id of a Clint for updatiog ");
-                var id = Convert.ToInt32(Console.ReadLine());
-                Console.Write("enter new Clients name ");
-                var name = Console.ReadLine();
-                Console.Write("enter new Clients balance ");
-                var balance = Convert.ToDecimal(Console.ReadLine());
+                }
+                else if (x == 2)
+                {
+                    Console.Write("enter id of a Clint for updatiog ");
+                    var id = Convert.ToInt32(Console.ReadLine());
+                    Console.Write("enter new Clients name ");
+                    var name = Console.ReadLine();
+                    Console.Write("enter new Clients balance ");
+                    var balance = Convert.ToDecimal(Console.ReadLine());
 
-                Thread update = new Thread(() => Client.Update(id, name, balance));
-                update.Start();
+                    Thread update = new Thread(() => ClientHelper.Update(id, name, balance));
+                    update.Start();
+                }
+                else if (x == 3)
+                {
+                    Console.Write("Enter an ID of Client to Delete it from the List ");
+                    var y = Convert.ToInt32(Console.ReadLine());
+                    Thread delete = new Thread(() => ClientHelper.Delete(y));
+                    delete.Start();
+                }
+                else if (x == 4)
+                {
+                    Thread select = new Thread(ClientHelper.Select);
+                    select.Start();
+                }
+                else if (x == 5)
+                    Task2();
+                else
+                    Console.WriteLine("Wrong Input");
             }
-            else if (x == 3)
-            {
-                Console.Write("Enter an ID of Client to Delete it from the List ");
-                var y = Convert.ToInt32(Console.ReadLine());
-                Thread delete = new Thread(() => Client.Delete(y));
-                delete.Start();
-            }
-            else if (x == 4)
-            {
-                Thread select = new Thread(Client.Select);
-                select.Start();
-            }
-            else
-                Console.WriteLine("Wrong Input");
         }
         public static void Task2()
         {
-            int id = 5;
-            decimal balance1 = 5000;
-            decimal balance2 = 2000;
-            var Timer = new Timer(id,balance1,balance2);
-            Timer.BalanceChecker();
+            BallanceChecker.Check();
         }
     }
     class Program
     {
         static void Main(string[] args)
         {
+
             Homework.Task1();
 
-            Console.WriteLine();
-            Console.WriteLine(" Working of the Second Part");
+          //  Console.WriteLine();
+           // Console.WriteLine(" Working of the Second Part");
 
-            Homework.Task2();
+            //Homework.Task2();
         }
     }
     class Client
     {
-        public static List<Client> mylist = new List<Client>();
+
         public int Id = 0;
         public string Name { get; set; }
         public decimal Balance { get; set; }
 
+        public static List<Client> mylist = new List<Client>();
+
+
+    }
+    class ClientHelper
+    {
         public static void Insert(string name, decimal balance)
         {
             var NewClient = new Client();
-            var lastid = 1;
-            foreach (var item in Client.mylist) { lastid++; }
-
+            var lastid = LastIdFinderInClient()+1;
+            
             NewClient.Id = lastid;
 
             NewClient.Name = name;
 
             NewClient.Balance = balance;
 
-            mylist.Add(NewClient);
-            Console.WriteLine("Your Client has been added Sucessfuly ");
+            Client.mylist.Add(NewClient);
+            Console.Clear();
+            if (ClientFinder(lastid)==1)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Your Client has been added Sucessfuly ");
+                Console.WriteLine();
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+            
+            Homework.Task1();
         }
         public static void Update(int x, string name, decimal balance)
         {
@@ -110,7 +130,8 @@ namespace Lesson11
             UpdateClient.Id = x;
             UpdateClient.Name = name;
             UpdateClient.Balance = balance;
-            mylist.Add(UpdateClient);
+            Client.mylist.Add(UpdateClient);
+            Homework.Task1();
         }
         public static void Delete(int x)
         {
@@ -119,10 +140,17 @@ namespace Lesson11
                 if (client.Id == x)
                 {
                     Client.mylist.Remove(client);
-                    Console.WriteLine("You Client has been deleted successfuly ");
+
+                    if (ClientFinder(x)==0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine("You Client has been deleted successfuly ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
                     break;
                 }
             }
+            Homework.Task1();
         }
         public static void Select()
         {
@@ -133,39 +161,69 @@ namespace Lesson11
                 Console.Write("  Blance -> " + client.Balance);
                 Console.WriteLine();
             }
+            Homework.Task1();
+        }
+        public static int LastIdFinderInClient()
+        {
+            int lastid = 0; 
+            foreach (var item in Client.mylist)
+            {
+                lastid++;
+            }
+            return lastid; 
+        }
+        public static int ClientFinder(int id)
+        {
+            int Temp = 0;
+            foreach (var item in Client.mylist)
+                if (item.Id==id)
+                {
+                    Temp = 1;
+                    break; 
+                }
+            return Temp;
 
         }
     }
-    class Timer
+
+    static class BallanceChecker
     {
-        public int ID = 0;
-        public decimal ballance1 { get; set; }
-        public decimal ballance2 { get; set; }
-        public Timer(int id,decimal b1, decimal b2)
+        public static void Check()
         {
-            ID = id;
-            ballance1 = b1;
-            ballance2 = b2; 
-        }
 
-        public void BalanceChecker()
-        {
-            if (ballance1<ballance2)
+            foreach (var item1 in Client.mylist)
             {
-                var temp = ballance2 - ballance1;
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Id = "+ID + "  oldballance = " + ballance1 + "  newballance = " + ballance2 + "  + " + temp);
-                Console.ForegroundColor = ConsoleColor.White;
-
+                foreach (var item2 in Client.mylist)
+                {
+                    if (item1.Id != item2.Id)
+                    {
+                        if (item1.Balance < item2.Balance)
+                        {
+                            Console.WriteLine();
+                            var temp = item2.Balance - item1.Balance;
+                            Console.WriteLine("Id = " + item1.Id + " name = " + item1.Name + "  ballance = " + item1.Balance);
+                            Console.WriteLine("Id = " + item2.Id + " name = " + item2.Name + "  ballance = " + item2.Balance);
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("Result =  " + temp);
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine();
+                        }
+                        else if (item1.Balance > item2.Balance)
+                        {
+                            Console.WriteLine();
+                            var temp = item2.Balance - item1.Balance;
+                            Console.WriteLine("Id = " + item1.Id + " name = " + item1.Name + "  ballance = " + item1.Balance);
+                            Console.WriteLine("Id = " + item2.Id + " name = " + item2.Name + "  ballance = " + item2.Balance);
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Result =  " + temp);
+                            Console.ForegroundColor = ConsoleColor.White;
+                            Console.WriteLine();
+                        }
+                    }
+                    Thread.Sleep(700);
+                }
             }
-            else if (ballance2<ballance1)
-            {
-                var temp = ballance2 - ballance1;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Id = " + ID + "  oldballance = " + ballance1 + "  newballance = " + ballance2 + "   " + temp);
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-
+            Console.WriteLine("This is the end");
         }
     }
 
