@@ -77,7 +77,7 @@ namespace Lesson11
           //  Console.WriteLine();
            // Console.WriteLine(" Working of the Second Part");
 
-            //Homework.Task2();/sdfsdf
+            //Homework.Task2();
         }
     }
     class Client
