@@ -5,12 +5,8 @@ namespace Lesson11
 {
     static class Homework
     {
-
-        public static object locker = new Object();
         public static void Task1()
         {
-            lock (locker)
-            {
                 Console.WriteLine("Welcome !!!!");
                 Console.WriteLine("1 => Insert ");
                 Console.WriteLine("2 => Update ");
@@ -60,7 +56,6 @@ namespace Lesson11
                     Task2();
                 else
                     Console.WriteLine("Wrong Input");
-            }
         }
         public static void Task2()
         {
@@ -71,7 +66,8 @@ namespace Lesson11
     {
         static void Main(string[] args)
         {
-
+            ClientHelper.DefauldClientAdder();
+           // BallanceChecker.Check();
             Homework.Task1();
 
           //  Console.WriteLine();
@@ -88,11 +84,29 @@ namespace Lesson11
         public decimal Balance { get; set; }
 
         public static List<Client> mylist = new List<Client>();
-
-
     }
     class ClientHelper
     {
+        public static void DefauldClientAdder()
+        {
+            var newClient1 = new Client();
+            var newClient2 = new Client();
+            var newClient3 = new Client();
+            newClient1.Id = 1;
+            newClient1.Name = "Ali";
+            newClient1.Balance = 1000;
+            Client.mylist.Add(newClient1);
+
+            newClient2.Id = 2;
+            newClient2.Name = "VAli";
+            newClient2.Balance = 3000;
+            Client.mylist.Add(newClient2);
+
+            newClient3.Id = 3;
+            newClient3.Name = "SciVAli";
+            newClient3.Balance = 5000;
+            Client.mylist.Add(newClient3);
+        }
         public static void Insert(string name, decimal balance)
         {
             var NewClient = new Client();
@@ -207,6 +221,7 @@ namespace Lesson11
                             Console.WriteLine("Result =  " + temp);
                             Console.ForegroundColor = ConsoleColor.White;
                             Console.WriteLine();
+                            Thread.Sleep(700);
                         }
                         else if (item1.Balance > item2.Balance)
                         {
@@ -218,9 +233,10 @@ namespace Lesson11
                             Console.WriteLine("Result =  " + temp);
                             Console.ForegroundColor = ConsoleColor.White;
                             Console.WriteLine();
+                            Thread.Sleep(700);
                         }
                     }
-                    Thread.Sleep(700);
+                    
                 }
             }
             Console.WriteLine("This is the end");
