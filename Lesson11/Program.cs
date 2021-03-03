@@ -66,14 +66,11 @@ namespace Lesson11
     {
         static void Main(string[] args)
         {
-            ClientHelper.DefauldClientAdder();
-           // BallanceChecker.Check();
             Homework.Task1();
+           
+           //  Console.WriteLine(" Working of the Second Part");
 
-          //  Console.WriteLine();
-           // Console.WriteLine(" Working of the Second Part");
-
-            //Homework.Task2();
+           // Homework.Task2();
         }
     }
     class Client
@@ -84,107 +81,100 @@ namespace Lesson11
         public decimal Balance { get; set; }
 
         public static List<Client> mylist = new List<Client>();
+        public static List<Client> mylistforcheck = new List<Client>();
     }
     class ClientHelper
     {
-        public static void DefauldClientAdder()
-        {
-            var newClient1 = new Client();
-            var newClient2 = new Client();
-            var newClient3 = new Client();
-            newClient1.Id = 1;
-            newClient1.Name = "Ali";
-            newClient1.Balance = 1000;
-            Client.mylist.Add(newClient1);
-
-            newClient2.Id = 2;
-            newClient2.Name = "VAli";
-            newClient2.Balance = 3000;
-            Client.mylist.Add(newClient2);
-
-            newClient3.Id = 3;
-            newClient3.Name = "SciVAli";
-            newClient3.Balance = 5000;
-            Client.mylist.Add(newClient3);
-        }
+        public static object locker = new Object();
         public static void Insert(string name, decimal balance)
         {
-            var NewClient = new Client();
-            var lastid = LastIdFinderInClient()+1;
-            
-            NewClient.Id = lastid;
-
-            NewClient.Name = name;
-
-            NewClient.Balance = balance;
-
-            Client.mylist.Add(NewClient);
-            Console.Clear();
-            if (ClientFinder(lastid)==1)
+            lock(locker)
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Your Client has been added Sucessfuly ");
-                Console.WriteLine();
-                Console.ForegroundColor = ConsoleColor.White;
+                var NewClient = new Client();
+                var lastid = LastIdFinderInClient() + 1;
+
+                NewClient.Id = lastid;
+
+                NewClient.Name = name;
+
+                NewClient.Balance = balance;
+
+                Client.mylist.Add(NewClient);
+                Console.Clear();
+                if (ClientFinder(lastid) == 1)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Your Client has been added Sucessfuly ");
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                Homework.Task1();
             }
-            
-            Homework.Task1();
         }
         public static void Update(int x, string name, decimal balance)
         {
-            foreach (var client in Client.mylist)
+            lock(locker)
             {
-                if (client.Id == x)
+                foreach (var client in Client.mylist)
                 {
-                    Client.mylist.Remove(client);
-                    break;
+                    if (client.Id == x)
+                    {
+                        Client.mylist.Remove(client);
+                        break;
+                    }
                 }
+                var UpdateClient = new Client();
+                UpdateClient.Id = x;
+                UpdateClient.Name = name;
+                UpdateClient.Balance = balance;
+                Client.mylist.Add(UpdateClient);
+                Homework.Task1();
             }
-            var UpdateClient = new Client();
-            UpdateClient.Id = x;
-            UpdateClient.Name = name;
-            UpdateClient.Balance = balance;
-            Client.mylist.Add(UpdateClient);
-            Homework.Task1();
         }
         public static void Delete(int x)
         {
-            foreach (var client in Client.mylist)
+           lock(locker)
             {
-                if (client.Id == x)
+                foreach (var client in Client.mylist)
                 {
-                    Client.mylist.Remove(client);
-
-                    if (ClientFinder(x)==0)
+                    if (client.Id == x)
                     {
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine("You Client has been deleted successfuly ");
-                        Console.ForegroundColor = ConsoleColor.White;
+                        Client.mylist.Remove(client);
+
+                        if (ClientFinder(x) == 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine("You Client has been deleted successfuly ");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                        break;
                     }
-                    break;
                 }
-            }
-            Homework.Task1();
+                Homework.Task1();
+            }    
         }
         public static void Select()
         {
-            foreach (var client in Client.mylist)
+           lock(locker)
             {
-                Console.Write("ID -> " + client.Id);
-                Console.Write("  Name -> " + client.Name);
-                Console.Write("  Blance -> " + client.Balance);
-                Console.WriteLine();
+                foreach (var client in Client.mylist)
+                {
+                    Console.Write("ID -> " + client.Id);
+                    Console.Write("  Name -> " + client.Name);
+                    Console.Write("  Blance -> " + client.Balance);
+                    Console.WriteLine();
+                }
+                Homework.Task1();
             }
-            Homework.Task1();
         }
         public static int LastIdFinderInClient()
         {
-            int lastid = 0; 
-            foreach (var item in Client.mylist)
-            {
-                lastid++;
-            }
-            return lastid; 
+                int lastid = 0;
+                foreach (var item in Client.mylist)
+                {
+                    lastid++;
+                }
+                return lastid;
         }
         public static int ClientFinder(int id)
         {
